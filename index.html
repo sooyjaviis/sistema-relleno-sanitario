@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Báscula</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="contenedor">
+        <header>
+            <h1>REGIONAL CCT - Relleno Sanitario</h1>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link activo">Operación Actual</a>
+                <a href="historial.html" class="nav-link">Historial de Salidas</a>
+                <a href="cerrarsesion.php" class="nav-link btn-salir">Cerrar Sesión</a>
+            </nav>
+        </header>
+        
+        <main class="grid-principal">
+            <section class="panel-formulario">
+                <h2>Registrar Entrada y Cobro</h2>
+                <form id="formEntrada">
+                    <div class="input-group">
+                        <label>Placa del Vehículo</label>
+                        <input type="text" id="placa" required placeholder="EJ: ABC-1234" style="text-transform: uppercase;">
+                    </div>
+                    <div class="input-group">
+                        <label>Nombre del Chofer</label>
+                        <input type="text" id="chofer" required placeholder="Nombre completo">
+                    </div>
+                    <div class="input-group">
+                        <label>Tipo de Residuo</label>
+                        <select id="tipo_residuo" required>
+                            <option value="Organico">Orgánico</option>
+                            <option value="Inorganico">Inorgánico</option>
+                            <option value="Escombros">Escombros</option>
+                            <option value="Peligroso">Peligroso</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Toneladas (T)</label>
+                        <input type="number" id="toneladas" step="0.01" required placeholder="Ej: 5.5">
+                    </div>
+                    <div class="input-group">
+                        <label>Total a Cobrar ($)</label>
+                        <input type="text" id="pago_vista" readonly style="background: #e9ecef; font-weight: bold; color: #27ae60; font-size: 1.1rem;">
+                    </div>
+                    <button type="submit" class="btn-primario">Registrar Ingreso y Cobro</button>
+                </form>
+            </section>
+
+            <section class="panel-tabla">
+                <h2>Vehículos Descargando</h2>
+                <div class="tabla-responsiva">
+                    <table id="tablaRegistros">
+                        <thead>
+                            <tr>
+                                <th>Placa</th>
+                                <th>Chofer</th>
+                                <th>Toneladas</th>
+                                <th>Pagado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

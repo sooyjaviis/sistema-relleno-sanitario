@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial - Relleno Sanitario</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="contenedor">
+        <header>
+            <h1>REGIONAL CCT- Relleno Sanitario</h1>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Operación Actual</a>
+                <a href="historial.html" class="nav-link activo">Historial de Salidas</a>
+                <a href="cerrarsesion.php" class="nav-link btn-salir">Cerrar Sesión</a>
+            </nav>
+        </header>
+        
+        <main class="grid-completo">
+            <section class="panel-tabla">
+                <h2>Historial de Vehículos Procesados</h2>
+                <div class="tabla-responsiva">
+                    <table id="tablaHistorial">
+                        <thead>
+                            <tr>
+                                <th>Placa</th>
+                                <th>Chofer</th>
+                                <th>Residuo</th>
+                                <th>Hora Entrada</th>
+                                <th>Hora Salida</th>
+                                <th>Toneladas</th>
+                                <th>Monto Cobrado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="historial.js"></script>
+</body>
+</html>
