@@ -210,9 +210,3 @@ th {
     font-weight: bold;
     background: #eee;
 }
-
-@media (max-width: 768px) {
-    .grid-principal {
-        grid-template-columns: 1fr;
-    }
-}

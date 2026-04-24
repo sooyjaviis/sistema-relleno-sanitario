@@ -1,86 +1,76 @@
 <?php
 session_start(); 
-header("Content-Type: application/json; charset=UTF-8"); // le decimos que vamos a hablar en puro JSON
+header("Content-Type: application/json; charset=UTF-8");
 
 if (!isset($_SESSION['usuario_logeado'])) {
-    echo json_encode(["estado" => "error", "mensaje" => "No está autorizado"]);
+    echo json_encode(["estado" => "error", "mensaje" => "No autorizado"]);
     exit;
 }
 
-$servidor = "localhost";
-$usuario_bd = "root";
-$contrasena_bd = "";
-$nombre_bd = "relleno_sanitario";
-$precio_por_tonelada = 375;
 
-// conexion a la base de datos
-$conexion = mysqli_connect($servidor, $usuario_bd, $contrasena_bd, $nombre_bd);
+$conexion = mysqli_connect("localhost", "root", "", "relleno_sanitario");
 
-// si valio  la conexion cerramos el charrango
 if (!$conexion) {
-    echo json_encode(["estado" => "error", "mensaje" => "Fallo la base de datos"]);
+    echo json_encode(["estado" => "error", "mensaje" => "No se pudo conectar a la base"]);
     exit;
 }
 
-// GET es pa andar de miron POST es pa jalar y guardar
-$tipo_de_peticion = $_SERVER['REQUEST_METHOD'];
+$metodo = $_SERVER['REQUEST_METHOD'];
 
 
-// si es get sacamos la lista 
-if ($tipo_de_peticion == 'GET') {
+if ($metodo == 'GET') {
+    $vista = isset($_GET['vista']) ? $_GET['vista'] : 'activos';
     
-    // si el front nos pide el historial de los que ya acabaron
-    if (isset($_GET['vista']) && $_GET['vista'] == 'historial') {
-        // sacamos a los que se les pagaron y se pelaron 
-        $consulta = "SELECT * FROM registros WHERE estado = 'COMPLETADO' ORDER BY hora_salida DESC";
+    if ($vista == 'historial') {
+        // Traemos los que ya se pelaron (COMPLETADO)
+        $sql = "SELECT * FROM registros WHERE estado = 'COMPLETADO' ORDER BY fecha DESC, hora_salida DESC";
     } else {
-        // si no se muestran los que estan detro
-        $consulta = "SELECT * FROM registros WHERE estado = 'DENTRO' ORDER BY hora_entrada DESC";
+        // Traemos los que siguen haciendo bola adentro (DENTRO)
+        $sql = "SELECT * FROM registros WHERE estado = 'DENTRO' ORDER BY hora_entrada DESC";
     }
     
-    $resultado = mysqli_query($conexion, $consulta);
-    $lista_camiones = []; // preparamos la cubeta vacía para echar los datos
+    $res = mysqli_query($conexion, $sql);
+    $datos = [];
     
-    while ($fila = mysqli_fetch_assoc($resultado)) {
-        array_push($lista_camiones, $fila);
+    while ($f = mysqli_fetch_assoc($res)) { 
+        $datos[] = $f; 
     }
     
-    echo json_encode($lista_camiones);
+    echo json_encode($datos);
 } 
 
 
-// post para guardar 
-if ($tipo_de_peticion == 'POST') {
+if ($metodo == 'POST') {
     $accion = $_POST['accion'];
 
     if ($accion == 'entrada') {
-        $placa_camion = mysqli_real_escape_string($conexion, strtoupper($_POST['placa']));
-        $nombre_chofer = mysqli_real_escape_string($conexion, $_POST['chofer']);
-        $tipo_basura = mysqli_real_escape_string($conexion, $_POST['tipo_residuo']);
-        $peso_toneladas = $_POST['toneladas'];
-        
-        $total_a_pagar = $peso_toneladas * $precio_por_tonelada;
+        $tipo = mysqli_real_escape_string($conexion, $_POST['tipo_camioneta']);
+        $placa = mysqli_real_escape_string($conexion, strtoupper($_POST['no_placa']));
+        $peso = floatval($_POST['peso']); 
+        $total = $peso * 375; 
+        $fecha = date("Y-m-d");
+        $hora = date("H:i:s");
 
-        $consulta = "INSERT INTO registros (placa, chofer, tipo_residuo, peso_toneladas, pago_total, estado) 
-                     VALUES ('$placa_camion', '$nombre_chofer', '$tipo_basura', '$peso_toneladas', '$total_a_pagar', 'DENTRO')";
+        $sql = "INSERT INTO registros (tipo_camioneta, no_placa, peso, total_a_pagar, hora_entrada, fecha, estado) 
+                VALUES ('$tipo', '$placa', '$peso', '$total', '$hora', '$fecha', 'DENTRO')";
         
-        if (mysqli_query($conexion, $consulta)) {
-            echo json_encode(["estado" => "exito"]); // ahuevo si jalo
+        if (mysqli_query($conexion, $sql)) {
+            echo json_encode(["estado" => "exito"]);
         } else {
-            echo json_encode(["estado" => "error", "mensaje" => "No se pudo guardar el registro"]); // algo valio queso
+            echo json_encode(["estado" => "error", "mensaje" => mysqli_error($conexion)]);
         }
     } 
-    
-    //el que ya se fue
+
     if ($accion == 'salida') {
-        $id_del_registro = $_POST['id'];
+        $id = intval($_POST['id']);
+        $hora = date("H:i:s");
         
-        $consulta = "UPDATE registros SET hora_salida = NOW(), estado = 'COMPLETADO' WHERE id = '$id_del_registro'";
+        $sql = "UPDATE registros SET hora_salida = '$hora', estado = 'COMPLETADO' WHERE id = $id";
         
-        if (mysqli_query($conexion, $consulta)) {
-            echo json_encode(["estado" => "exito"]); 
+        if (mysqli_query($conexion, $sql)) {
+            echo json_encode(["estado" => "exito"]);
         } else {
-            echo json_encode(["estado" => "error", "mensaje" => "No se pudo registrar la salida"]); // F en el chat
+            echo json_encode(["estado" => "error", "mensaje" => mysqli_error($conexion)]);
         }
     }
 }
